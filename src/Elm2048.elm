@@ -1,41 +1,52 @@
-{--
-2048-elm
+module Elm2048 exposing (..)
 
-Elm2048.elm
+import Logic exposing (stepGame)
+import Rendering exposing (display)
 
-Copyright (c) 2014 Josh Kirklin
 
-This source is subject to the MIT License.
-Please see the LICENSE file for more information.
-All other rights reserved.
---}
+type Direction
+    = Up
+    | Down
+    | Left
+    | Right
+    | None
 
-module Elm2048 where
 
-import InputModel (Input, Controls, playerDirection, randomFloats)
-import GameModel (defaultGame, GameState)
-import Logic (stepGame)
-import Rendering (display)
+type Tile
+    = Number Int
+    | Empty
 
-{------------------------------------------------------------------------------
-                               Ports and Inputs
-------------------------------------------------------------------------------}
 
-port score : Signal Int -- Outgoing score port
-port score = (\x -> x.score) <~ gameState
+type Grid
+    = Grid List (List Tile)
 
-port newGameButton : Signal Bool -- Incoming new game button port
 
-controls = Controls <~ playerDirection ~ newGameButton -- set up controls
-input =  Input <~ controls ~ (randomFloats controls) -- set up input
+type Progress
+    = InProgress
+    | GameOver
+    | Won
 
-{------------------------------------------------------------------------------
-                        Gamestate folding and display
-------------------------------------------------------------------------------}
 
-gameState : Signal GameState
-gameState = foldp stepGame defaultGame input -- fold the input into the game 
-                                             -- state, starting with the 
-                                             -- default game state
+type alias GameState =
+    { grid : Grid
+    , score : Int
+    , gameProgress : Progress
+    }
 
-main = display <~ gameState -- display the game
+
+gridSize : Int
+gridSize =
+    4
+
+
+emptyGrid : Grid
+emptyGrid =
+    Grid <| repeat gridSize <| repeat gridSize <| Empty
+
+
+defaultGame : GameState
+defaultGame =
+    { grid = emptyGrid
+    , score = 0
+    , gameProgress = InProgress
+    }
