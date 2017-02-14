@@ -1,52 +1,65 @@
 module Elm2048 exposing (..)
 
-import Logic exposing (stepGame)
+import Html exposing (..)
+import Html.Events exposing (onClick)
+import Html.Attributes exposing (..)
+import GameModel exposing (..)
 import Rendering exposing (display)
 
 
-type Direction
-    = Up
-    | Down
-    | Left
-    | Right
-    | None
+--import Logic exposing (stepGame)
 
 
-type Tile
-    = Number Int
-    | Empty
+type Msg
+    = NewGame
+    | Move Direction
 
 
-type Grid
-    = Grid List (List Tile)
+view : Model -> Html Msg
+view model =
+    div [ id "top" ]
+        [ h1 [] [ text "2048-elm" ]
+        , div [ id "sideBits" ]
+            [ div [ id "scoreContainer" ]
+                [ strong []
+                    [ text ("SCORE " ++ (toString model.score)) ]
+                ]
+            , div
+                [ id "newGameButton"
+                , onClick NewGame
+                ]
+                [ strong []
+                    [ text "New Game" ]
+                ]
+            , p [ id "description" ]
+                [ text "Join the numbers and get to the "
+                , strong [] [ text "2048 tile!" ]
+                ]
+            ]
+        , div [ id "gameBoard" ]
+            [ viewGameBoard model ]
+        ]
 
 
-type Progress
-    = InProgress
-    | GameOver
-    | Won
+viewGameBoard : Model -> Html Msg
+viewGameBoard model =
+    div [] []
 
 
-type alias GameState =
-    { grid : Grid
-    , score : Int
-    , gameProgress : Progress
-    }
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        NewGame ->
+            ( initialModel, Cmd.none )
+
+        _ ->
+            ( model, Cmd.none )
 
 
-gridSize : Int
-gridSize =
-    4
-
-
-emptyGrid : Grid
-emptyGrid =
-    Grid <| repeat gridSize <| repeat gridSize <| Empty
-
-
-defaultGame : GameState
-defaultGame =
-    { grid = emptyGrid
-    , score = 0
-    , gameProgress = InProgress
-    }
+main =
+    Html.program
+        { init = ( initialModel, Cmd.none )
+        , view = view
+        , update = update
+        , subscriptions = (\_ -> Sub.none)
+        }
